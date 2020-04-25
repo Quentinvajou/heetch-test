@@ -1,0 +1,17 @@
+*.pyc
+*.csv
+*.tar.gz
+*.log
+*.bin
+*.vec
+data/
+data_temp/
+mysql/
+dump/
+temp/
+.idea/*
+.idea/**
+.idea/
+__pycache__
+__pycache__/*
+__pycache__/**

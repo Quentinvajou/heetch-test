@@ -1,0 +1,65 @@
+version: '3'
+services:
+
+#  heetch-setup:
+#    build:
+#          context: ..
+#          dockerfile: Dockerfiles/Dockerfile_setup
+#    stdin_open: true
+#    volumes:
+#     - ./heetch-test:/heetch-test
+#    container_name: heetch-setup
+#    command:
+#      - /bin/bash ./src/analytics/download_data_raw.sh
+
+  eda:
+    build:
+      context: ..
+      dockerfile: Dockerfiles/Dockerfile_ds
+    ports:
+    - "5000:5000"
+    - "8501:8501"
+    stdin_open: true
+    tty: true
+    volumes:
+     - /Users/quentinvajou/Documents/WorkDev/Python/heetch-test:/heetch-test
+    restart: always
+    container_name: heetch-ds
+    command: streamlit run src/analytics/__main__.py
+    # TODO:
+    #  - why different on second line (tiny vs bash?)
+
+#  mysql:
+#    container_name: mysql
+#    restart: always
+#    image: mysql:8.0.19
+#    ports:
+#    - 8080:8080
+#    - 3306:3306
+#    environment:
+#      MYSQL_ROOT_PASSWORD: 'root' # TODO: Change this
+#      MYSQL_USER: 'root'
+#      MYSQL_PASS:
+#    volumes:
+#      - mysql-datavolume:/var/lib/mysql
+#      - ../data:/var/lib/mysql/data
+#    command: mysqld --secure-file-priv=/var/lib/mysql
+#
+#  metabase:
+#    container_name: metabase
+#    restart: always
+#    image: metabase/metabase
+#    ports:
+#    - 3000:3000
+#    links:
+#      - mysql
+#
+#
+#volumes:
+#  mysql-datavolume:
+
+#
+#networks:
+#  default:
+#    external:
+#      name: host
