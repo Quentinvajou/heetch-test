@@ -15,7 +15,7 @@ Table of Contents
   * [Getting started](#getting-started)
     * [Prerequisites](#prerequisites)
     * [Installation](#installation)
-        
+    
   * [How it works](#how-it-works)
     * [Get dataset](#get-dataset)
     * [Run analysis](#run-analysis)
@@ -54,8 +54,6 @@ First we build the image that responsible for data setup :
 
 ```bash
 docker build -f Dockerfiles/Dockerfile_setup -t heetch_setup .
-
-docker build --build-arg USER_ID=$(id -u) --build-arg GROUP_ID=$(id -g) -f Dockerfiles/Dockerfile_setup -t heetch_setup .
 ```
 
 
@@ -63,7 +61,7 @@ docker build --build-arg USER_ID=$(id -u) --build-arg GROUP_ID=$(id -g) -f Docke
 Then execute the container :
 
 ```bash
-docker run -v $(pwd):/heetch-test --name heetch_setup --rm -d heetch_setup
+docker run --user "$(id -u):$(id -g)" -v $(pwd):/heetch-test --name heetch_setup --rm -d heetch_setup
 ```
 
 In Linux use *$(pwd)* to get the path to the repo. Alternatively in :
@@ -107,5 +105,11 @@ Feature engineering was not optimised. It will take a few minutes to run the fir
 
 ### Cleaning
 
+To get rid of the images just use :
 
+```bash
+docker rmi -f heetch_setup heetch_ds
+```
+
+ 
 
