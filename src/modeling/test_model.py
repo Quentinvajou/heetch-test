@@ -57,12 +57,6 @@ class TestModel:
         metrics['recall_score'] = recall_score(test_y, predictions)
         metrics['accuracy_score'] = accuracy_score(test_y, predictions)
         metrics['balanced_accuracy_score'] = balanced_accuracy_score(test_y, predictions)
-
-
-        # metrics_dist = self.compare_dist(train_y, test_y)
         metrics['ratio_T_in_train'] = train_y.value_counts(normalize=True)[True]
         metrics['ratio_T_in_test'] = test_y.value_counts(normalize=True)[True]
-
-        # shifting_features = self.covariate_shift_test(train_x, test_x)
-        # metrics['shifting_features_dict'] = shifting_features
         return metrics

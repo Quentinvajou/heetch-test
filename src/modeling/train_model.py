@@ -20,7 +20,7 @@ class TrainModel:
     def run_training(self):
         df, is_preprocessed = self.preprocessing.load_and_merge_datasets()
         if not is_preprocessed:
-            df = self.preprocessing.prepare_dataset_for_training(df, save_processed_dataset=False)
+            df = self.preprocessing.prepare_dataset_for_training(df, save_processed_dataset=True)
         df = self.preprocessing.filter_dataset_for_training(df)
         train_x, test_x, train_y, test_y = train_test_split(df.iloc[:, :-1], df.iloc[:, -1], test_size=.3, random_state=42)
 
@@ -72,6 +72,8 @@ class TrainModel:
 
     def save_model_and_metrics(self, model, metrics):
         path_output_model = 'data/models/'
+        if not os.path.exists(path_output_model):
+            os.makedirs(path_output_model)
         models_saved = [f for f in os.listdir(path_output_model) if os.path.isfile(os.path.join(path_output_model, f))]
         os.system("mkdir -p " + path_output_model)
         version = len(models_saved)
