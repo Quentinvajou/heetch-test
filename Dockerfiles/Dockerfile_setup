@@ -3,10 +3,9 @@ FROM python:3.7.7-slim
 RUN pip install gdown==3.10.3
 
 COPY src/ /heetch-test/src/
-RUN mkdir -p /heetch-test/data/raw
 
 WORKDIR /heetch-test
 ENV PYTHONPATH /heetch-test
 
-RUN ["chmod", "+x", "src/analytics/download_data_raw.sh"]
-CMD ["/bin/bash", "src/analytics/download_data_raw.sh"]
+RUN ["chmod", "+x", "src/data-setup/download_data_raw.sh"]
+CMD ["/bin/bash", "src/data-setup/download_data_raw.sh"]

@@ -31,17 +31,14 @@ class Preprocessing:
 
             df_m = df_br.merge(df_rr, how='inner', left_on=['ride_id'], right_on=['ride_id'])
             df_m = self.timestamp_preprocessing(df_m)
-
-            # df_t = df_m.loc[df_m['driver_accepted'] == True].sample(500)
-            # df_f = df_m.loc[df_m['driver_accepted'] == False].sample(500)
-            # df_m = pd.concat([df_t, df_f], axis=0)
+            df_m = df_m.sample(frac=.1)
 
         self.df_d = pd.read_csv('data/raw/drivers.log')
         self.df_d = self.timestamp_preprocessing(self.df_d)
         self.df_d = self.df_d.sort_values('logged_at')
         logger.info("datasets loaded")
 
-        return df_m.sample(frac=1), is_preprocessed
+        return df_m, is_preprocessed
 
     def timestamp_preprocessing(self, df):
         """
@@ -152,6 +149,8 @@ class Preprocessing:
         df = self.convert_and_format_dataset(df)
         df = self.preprocessing_rules(df)
         if save_processed_dataset:
+            if not os.path.exists('data/trusted/'):
+                os.makedirs('data/trusted/')
             df.to_csv('data/trusted/preprocessed_dataset.csv')
         return df
 

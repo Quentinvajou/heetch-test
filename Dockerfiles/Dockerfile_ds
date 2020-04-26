@@ -17,6 +17,8 @@ RUN pip install Flask-JWT==0.3.2
 RUN pip install Flask-RESTful==0.3.6
 RUN pip install imbalanced-learn==0.6.2
 
+COPY src/ /heetch-test/src/
+
 WORKDIR /heetch-test
 
 ENV PYTHONPATH /heetch-test

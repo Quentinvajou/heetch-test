@@ -17,7 +17,7 @@ default_parameters = {
     'gamma': 0,
     'subsample': 0.7,
     'colsample_bytree': 0.7,
-    'num_boost_round': 200
+    'num_boost_round': 900
     # 'num_boost_round': 900
 }
 
