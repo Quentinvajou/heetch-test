@@ -34,7 +34,7 @@ class EDA:
         :return: pandas DataFrame
         """
         df = pd.read_csv(dataset_path)
-        df = self.preprocessing.eda_preprocessing(df)
+        df = self.preprocessing.timestamp_preprocessing(df)
         return df
 
     def main_data_explorer(self):

@@ -26,6 +26,7 @@ services:
     restart: always
     container_name: heetch-ds
     command: streamlit run src/analytics/__main__.py
+#    command: python src/modeling/__main__.py
     # TODO:
     #  - why different on second line (tiny vs bash?)
 
