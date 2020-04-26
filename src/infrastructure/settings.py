@@ -2,6 +2,44 @@ import os, sys
 import logging
 import logmatic
 
+continuous = ['driver_client_distance', 'ride_distance', 'workshift_duration', 'workshift_rides_count',
+              'workshift_rides_duration']
+discrete = ['driver_accepted']
+look_for_best_params = False
+
+default_parameters = {
+    'objective': 'binary:logistic',
+    'eval_metric': 'logloss',
+    'learning_rate': 0.05,
+    'max_depth': 7,
+    'min_child_weight': 2,
+    'n_estimators': 800,
+    'gamma': 0,
+    'subsample': 0.7,
+    'colsample_bytree': 0.7,
+    'num_boost_round': 200
+    # 'num_boost_round': 900
+}
+
+list_of_parameters = {'nthread': [4],
+  'objective':['binary:logistic'],
+  'learning_rate': [0.03, 0.05, 0.07],  # so called `eta` value
+  'max_depth': [3, 5, 7],
+  # 'min_child_weight': [2, 3, 4],
+  # 'silent': [1],
+  # 'subsample': [0.3, 0.7],
+  # 'colsample_bytree': [0.5, 0.7],
+  # 'n_estimators': [10, 100, 500, 800],
+  # 'num_boost_round' : 900
+}
+
+dict_modeling_params = {
+    'continuous': continuous,
+    'discrete': discrete,
+    'default_parameters': default_parameters,
+    'list_of_parameters': list_of_parameters,
+    'look_for_best_params': look_for_best_params
+}
 
 def setup_logger_stdout(name, level=logging.INFO, additional_logger=[], removed_logger=[]):
     logger = logging.getLogger(name)

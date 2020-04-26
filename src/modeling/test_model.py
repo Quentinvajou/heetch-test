@@ -3,12 +3,11 @@ import numpy as np
 
 from sklearn.ensemble import RandomForestClassifier
 from scipy.stats import ttest_ind, normaltest, ks_2samp
-from sklearn.metrics import explained_variance_score, r2_score
-from statsmodels.stats.diagnostic import het_breuschpagan
+from sklearn.metrics import f1_score, precision_score, recall_score, accuracy_score, balanced_accuracy_score
 from sklearn.model_selection import cross_validate
 
 
-class ModelTest:
+class TestModel:
     def __init__(self):
         pass
 
@@ -51,17 +50,19 @@ class ModelTest:
 
     def test_model_and_dataset(self, train_x, train_y, test_x, test_y, yhat):
         metrics = {}
-        metrics['variance_explained'] = explained_variance_score(test_y, yhat)
-        metrics['r2'] = r2_score(test_y, yhat)
+        predictions = [round(value) for value in yhat]
 
-        metrics_dist = self.compare_dist(train_y, test_y)
-        metrics = {**metrics, **metrics_dist}
+        metrics['f1_score'] = f1_score(test_y, predictions)
+        metrics['precision_score'] = precision_score(test_y, predictions)
+        metrics['recall_score'] = recall_score(test_y, predictions)
+        metrics['accuracy_score'] = accuracy_score(test_y, predictions)
+        metrics['balanced_accuracy_score'] = balanced_accuracy_score(test_y, predictions)
 
-        test_residual = test_y - yhat
-        _, pvalue, _, _ = het_breuschpagan(test_residual.loc[~test_x.isna().any(axis=1)],
-                                           test_x[~test_x.isna().any(axis=1)])  ## null hypothesis (homoscedasticity)
-        metrics['homoscedasticity_pv'] = pvalue
 
-        shifting_features = self.covariate_shift_test(train_x, test_x)
-        metrics['shifting_features_dict'] = shifting_features
+        # metrics_dist = self.compare_dist(train_y, test_y)
+        metrics['ratio_T_in_train'] = train_y.value_counts(normalize=True)[True]
+        metrics['ratio_T_in_test'] = test_y.value_counts(normalize=True)[True]
+
+        # shifting_features = self.covariate_shift_test(train_x, test_x)
+        # metrics['shifting_features_dict'] = shifting_features
         return metrics
