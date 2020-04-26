@@ -8,7 +8,7 @@ This repo is aims at solving a business case for [Heetch](https://www.heetch.com
 
 
 
-[[TOC]]
+[[toc]]
 
 
 
