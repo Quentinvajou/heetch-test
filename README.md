@@ -84,7 +84,7 @@ docker build -f Dockerfiles/Dockerfile_ds -t heetch_ds .
 Then execute the container to run the analysis tool :
 
 ```bash
-docker run -v $(pwd):/heetch-test --name heetch_ds_analytics --rm -d heetch_ds streamlit run src/analytics/__main__.py
+docker run -v $(pwd):/heetch-test -p 8501:8501 --name heetch_ds_analytics --rm -d heetch_ds streamlit run src/analytics/__main__.py
 ```
 
 You can now connect on http://localhost:8501/ to explore the datasets. **The analysis content is available in the wiki**.
