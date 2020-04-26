@@ -149,8 +149,6 @@ class Preprocessing:
         df = self.convert_and_format_dataset(df)
         df = self.preprocessing_rules(df)
         if save_processed_dataset:
-            if not os.path.exists('data/trusted/'):
-                os.makedirs('data/trusted/')
             df.to_csv('data/trusted/preprocessed_dataset.csv')
         return df
 

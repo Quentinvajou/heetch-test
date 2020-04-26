@@ -4,8 +4,15 @@ RUN pip install gdown==3.10.3
 
 COPY src/ /heetch-test/src/
 
+ARG USER_ID
+ARG GROUP_ID
+
+#RUN addgroup --gid $GROUP_ID user
+RUN adduser --disabled-password --gecos '' --uid $USER_ID --gid $GROUP_ID user
+USER user
+
 WORKDIR /heetch-test
 ENV PYTHONPATH /heetch-test
 
-RUN ["chmod", "+x", "src/data-setup/download_data_raw.sh"]
+#RUN ["chmod", "+x", "src/data-setup/download_data_raw.sh"]
 CMD ["/bin/bash", "src/data-setup/download_data_raw.sh"]

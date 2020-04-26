@@ -7,6 +7,17 @@ if [ ! -d "data/raw/" ]
 then
   mkdir -p data/raw/
 fi
+
+if [ ! -d "data/trusted/" ]
+then
+  mkdir -p data/trusted/
+fi
+
+
+if [ ! -d "data/models/" ]
+then
+  mkdir -p data/models/
+fi
 # Iterate the string array using for loop
 for val in "${!files_to_dl[@]}"; do
    gdown https://drive.google.com/uc?id=$val -O data/raw/${files_to_dl[$val]}.log
