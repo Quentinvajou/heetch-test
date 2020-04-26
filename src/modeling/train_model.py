@@ -72,8 +72,6 @@ class TrainModel:
 
     def save_model_and_metrics(self, model, metrics):
         path_output_model = 'data/models/'
-        if not os.path.exists(path_output_model):
-            os.makedirs(path_output_model)
         models_saved = [f for f in os.listdir(path_output_model) if os.path.isfile(os.path.join(path_output_model, f))]
         os.system("mkdir -p " + path_output_model)
         version = len(models_saved)
