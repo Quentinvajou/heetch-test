@@ -9,19 +9,18 @@ This repo is aims at solving a business case for [Heetch](https://www.heetch.com
 
 
 Table of Contents
-=================
+-----------------
 
   * [Context](#context)
-  
   * [Getting started](#getting-started)
-        * [Prerequisites](#prerequisites)
-        * [Installation](#installation)
+    * [Prerequisites](#prerequisites)
+    * [Installation](#installation)
         
   * [How it works](#how-it-works)
-        * [Get dataset](#get-dataset)
-        * [Run analysis](#run-analysis)
-        * [Run training](#run-training)
-        * [Cleaning](#cleaning)
+    * [Get dataset](#get-dataset)
+    * [Run analysis](#run-analysis)
+    * [Run training](#run-training)
+    * [Cleaning](#cleaning)
 
 
 
