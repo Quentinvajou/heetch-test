@@ -4,6 +4,7 @@ import logmatic
 
 continuous = ['driver_client_distance', 'ride_distance', 'workshift_duration', 'workshift_rides_count',
               'workshift_rides_duration']
+
 discrete = ['driver_accepted']
 look_for_best_params = False
 

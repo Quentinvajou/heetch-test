@@ -96,10 +96,11 @@ class EDA:
         #  - build histogram by city (origin, dest)
 
     def explore_d_dataset(self, df):
-        st.subheader('Distribution drivers states')
+        st.subheader('Distribution of drivers by hour')
         hist_values = np.histogram(df['logged_at'].dt.hour, bins=24, range=(0, 24))[0]
         st.bar_chart(hist_values)
 
+        st.subheader('Distribution drivers states')
         sns.catplot('new_state', kind='count', data=df)
         st.pyplot()
 

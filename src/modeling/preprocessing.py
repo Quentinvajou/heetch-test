@@ -31,7 +31,7 @@ class Preprocessing:
 
             df_m = df_br.merge(df_rr, how='inner', left_on=['ride_id'], right_on=['ride_id'])
             df_m = self.timestamp_preprocessing(df_m)
-            df_m = df_m.sample(frac=.1)
+            df_m = df_m.sample(frac=.5)
 
         self.df_d = pd.read_csv('data/raw/drivers.log')
         self.df_d = self.timestamp_preprocessing(self.df_d)
@@ -58,6 +58,9 @@ class Preprocessing:
         # df = self.parallelize(df, self.feature_driver_availability)
         df['driver_client_distance'] = df.apply(lambda row: self.distance_between_point(
             (row['origin_lat'], row['origin_lon']), (row['driver_lat'], row['driver_lon'])), axis=1)
+        # This features weakens model
+        # df['driver_destination_distance'] = df.apply(lambda row: self.distance_between_point(
+        #     (row['destination_lat'], row['destination_lon']), (row['driver_lat'], row['driver_lon'])), axis=1)
         df['ride_distance'] = df.apply(lambda row: self.distance_between_point(
             (row['origin_lat'], row['origin_lon']), (row['destination_lat'], row['destination_lon'])), axis=1)
 
@@ -87,7 +90,7 @@ class Preprocessing:
         return duration_workshift, count_ride, mean_ride_duration
 
     def feature_driver_availability(self, df):
-        df['is_driver_available'] = df[['logged_at', 'driver_id']].progress_apply(lambda row: self.is_driver_available(row), axis=1)
+        df['is_driver_available'], df['driver_next_state'] = zip(*df[['logged_at', 'driver_id']].progress_apply(lambda row: self.is_driver_available(row), axis=1))
         return df
 
     def is_driver_available(self, row):
@@ -97,6 +100,7 @@ class Preprocessing:
         lt.append(booking_request_time)
         lt_sorted = sorted(lt)
         index_in_list = lt_sorted.index(booking_request_time)
+        driver_next_state = 'err'
         if index_in_list == 0:
             is_driver_available = False
         elif index_in_list == len(lt) - 1:
@@ -111,7 +115,7 @@ class Preprocessing:
                 is_driver_available = False
             elif driver_next_state == "disconnected":
                 is_driver_available = True
-        return is_driver_available
+        return is_driver_available, driver_next_state
 
     def distance_between_point(self, origin, destination):
         lat1, lon1 = origin
@@ -160,7 +164,9 @@ class Preprocessing:
         return df
 
     def main(self):
-        pp = Preprocessing()
-        df = pp.load_and_merge_datasets()
-        df = pp.feature_engineering(df)
-        # df_temp = pp.df_d.loc[pp.df_d['driver_id']==df.loc[9713, 'driver_id']]
+        pp = Preprocessing(dict_modeling_params)
+        df, _ = pp.load_and_merge_datasets()
+        # df = pp.prepare_dataset_for_training(df)
+        df_temp = df.loc[df['driver_id']=="75D7A80A-1219-44A2-B0AD-795C0B773145", :]
+        # TODO :
+        #  - fix workshift feature
