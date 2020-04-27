@@ -4,8 +4,9 @@ import numpy as np
 from tqdm import tqdm
 from multiprocessing import Pool, cpu_count
 import math
+import datetime
 
-from src.infrastructure.settings import logger
+from src.infrastructure.settings import logger, DATASET_SAMPLING_FRACTION
 
 tqdm.pandas()
 cores = cpu_count() #Number of CPU cores on your system
@@ -20,10 +21,11 @@ class Preprocessing:
         self.discrete = dict_modeling_params['discrete']
         self.df_d = None
 
-    def load_and_merge_datasets(self):
-        if os.path.isfile('data/trusted/preprocessed_dataset.csv') and os.access('data/trusted/preprocessed_dataset.csv', os.R_OK):
+    def load_and_merge_datasets(self, frac=1):
+        if os.path.isfile('data/trusted/preprocessed_dataset'+str(DATASET_SAMPLING_FRACTION)+'.csv')\
+                and os.access('data/trusted/preprocessed_dataset'+str(DATASET_SAMPLING_FRACTION)+'.csv', os.R_OK):
             is_preprocessed = True
-            df_m = pd.read_csv('data/trusted/preprocessed_dataset.csv')
+            df_m = pd.read_csv('data/trusted/preprocessed_dataset'+str(DATASET_SAMPLING_FRACTION)+'.csv')
         else:
             is_preprocessed = False
             df_rr = pd.read_csv('data/raw/rideRequests.log')
@@ -31,7 +33,7 @@ class Preprocessing:
 
             df_m = df_br.merge(df_rr, how='inner', left_on=['ride_id'], right_on=['ride_id'])
             df_m = self.timestamp_preprocessing(df_m)
-            df_m = df_m.sample(frac=.5)
+            df_m = df_m.sample(frac=frac)
 
         self.df_d = pd.read_csv('data/raw/drivers.log')
         self.df_d = self.timestamp_preprocessing(self.df_d)
@@ -65,12 +67,14 @@ class Preprocessing:
             (row['origin_lat'], row['origin_lon']), (row['destination_lat'], row['destination_lon'])), axis=1)
 
         df = self.parallelize(df, self.features_workshift_state)
-
+        df['workshift_rides_ratio'] = df[['workshift_rides_count', 'workshift_rides_max']].apply(
+            lambda row: row[0]/row[1], axis=1)
         logger.info("feature engineering ended")
         return df
 
     def features_workshift_state(self, df):
-        df['workshift_duration'], df['workshift_rides_count'], df['workshift_rides_duration'] = \
+        df['workshift_duration'], df['workshift_rides_count'], df['workshift_mean_rides_duration'],\
+        df['workshift_sum_rides_duration'], df['workshift_rides_max'] = \
             zip(*df[['logged_at', 'driver_id']].progress_apply(lambda row: self.workshift_state(row), axis=1))
         return df
 
@@ -79,15 +83,25 @@ class Preprocessing:
         df_driver = self.df_d.loc[self.df_d['driver_id'] == row['driver_id'], :]
         duration_workshift = booking_request_time - df_driver.iloc[0, -2]
         list_rides_time = []
-        for index, row in df_driver.iterrows():
-            if row['new_state'] == 'began_ride':
-                begin = row['logged_at']
-            elif row['new_state'] == 'ended_ride':
-                end = row['logged_at']
-                list_rides_time.append(end-begin)
+        count_all_rides = 0
+        for index, row_d in df_driver.iterrows():
+            count_all_rides += 1
+            if row_d['logged_at'] <= booking_request_time:
+                if row_d['new_state'] == 'began_ride':
+                    begin = row_d['logged_at']
+                elif row_d['new_state'] == 'ended_ride':
+                    end = row_d['logged_at']
+                    list_rides_time.append(end-begin)
+            else:
+                continue
         count_ride = len(list_rides_time)
-        mean_ride_duration = np.mean(list_rides_time)
-        return duration_workshift, count_ride, mean_ride_duration
+        if count_ride > 0:
+            mean_ride_duration = np.mean(list_rides_time)
+            sum_ride_duration = np.sum(list_rides_time)
+        else:
+            mean_ride_duration = datetime.timedelta()
+            sum_ride_duration = datetime.timedelta()
+        return duration_workshift, count_ride, mean_ride_duration, sum_ride_duration, count_all_rides
 
     def feature_driver_availability(self, df):
         df['is_driver_available'], df['driver_next_state'] = zip(*df[['logged_at', 'driver_id']].progress_apply(lambda row: self.is_driver_available(row), axis=1))
@@ -141,8 +155,10 @@ class Preprocessing:
     def convert_and_format_dataset(self, df):
         if 'workshift_duration' in df.columns:
             df['workshift_duration'] = df['workshift_duration'].apply(lambda x: x.seconds/60)
-        if 'workshift_rides_duration' in df.columns:
-            df['workshift_rides_duration'] = df['workshift_rides_duration'].apply(lambda x: x.seconds/60)
+        if 'workshift_mean_rides_duration' in df.columns:
+            df['workshift_mean_rides_duration'] = df['workshift_mean_rides_duration'].apply(lambda x: x.seconds/60)
+        if 'workshift_sum_rides_duration' in df.columns:
+            df['workshift_sum_rides_duration'] = df['workshift_sum_rides_duration'].apply(lambda x: x.seconds/60)
         return df
 
     def preprocessing_rules(self, df):
@@ -153,7 +169,7 @@ class Preprocessing:
         df = self.convert_and_format_dataset(df)
         df = self.preprocessing_rules(df)
         if save_processed_dataset:
-            df.to_csv('data/trusted/preprocessed_dataset.csv')
+            df.to_csv('data/trusted/preprocessed_dataset'+str(DATASET_SAMPLING_FRACTION)+'.csv')
         return df
 
     def filter_dataset_for_training(self, df):
@@ -167,6 +183,26 @@ class Preprocessing:
         pp = Preprocessing(dict_modeling_params)
         df, _ = pp.load_and_merge_datasets()
         # df = pp.prepare_dataset_for_training(df)
-        df_temp = df.loc[df['driver_id']=="75D7A80A-1219-44A2-B0AD-795C0B773145", :]
-        # TODO :
-        #  - fix workshift feature
+        df_temp = df.loc[df['driver_id'] == "75D7A80A-1219-44A2-B0AD-795C0B773145", :]
+        df_temp = df_temp.sort_values(['logged_at'])
+
+        row = df_temp.iloc[1]
+        booking_request_time = pd.to_datetime(row['logged_at'])
+        df_driver = pp.df_d.loc[pp.df_d['driver_id'] == row['driver_id'], :]
+        duration_workshift = booking_request_time - df_driver.iloc[0, -2]
+        list_rides_time = []
+        count_all_ride = 0
+        for index, row_d in df_driver.iterrows():
+            count_all_ride += 1
+            if row_d['logged_at'] <= booking_request_time:
+                if row_d['new_state'] == 'began_ride':
+                    begin = row_d['logged_at']
+                elif row_d['new_state'] == 'ended_ride':
+                    end = row_d['logged_at']
+                    list_rides_time.append(end-begin)
+            else:
+                continue
+        count_rides = len(list_rides_time)
+        mean_ride_duration = np.mean([])
+        sum_ride_duration = np.sum([])
+        sum_rides = None

@@ -8,6 +8,8 @@ from imblearn.over_sampling import RandomOverSampler
 
 from sklearn.model_selection import GridSearchCV, train_test_split
 
+from src.infrastructure.settings import DATASET_SAMPLING_FRACTION
+
 
 class TrainModel:
     def __init__(self, dict_modeling_params, preprocessing=None, test_model=None):
@@ -18,7 +20,7 @@ class TrainModel:
         self.test_model = test_model
 
     def run_training(self):
-        df, is_preprocessed = self.preprocessing.load_and_merge_datasets()
+        df, is_preprocessed = self.preprocessing.load_and_merge_datasets(frac=DATASET_SAMPLING_FRACTION)
         if not is_preprocessed:
             df = self.preprocessing.prepare_dataset_for_training(df, save_processed_dataset=True)
         df = self.preprocessing.filter_dataset_for_training(df)

@@ -2,10 +2,15 @@ import os, sys
 import logging
 import logmatic
 
+ENV = os.getenv('ENV', 'local')
+DATASET_SAMPLING_FRACTION = float(os.getenv('DATASET_SAMPLING_FRACTION', '.1'))
+
 continuous = ['driver_client_distance', 'ride_distance', 'workshift_duration', 'workshift_rides_count',
-              'workshift_rides_duration']
+              'workshift_rides_max','workshift_mean_rides_duration', 'workshift_sum_rides_duration',
+              'workshift_rides_ratio']
 
 discrete = ['driver_accepted']
+
 look_for_best_params = False
 
 default_parameters = {
