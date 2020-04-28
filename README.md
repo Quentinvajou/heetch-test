@@ -126,7 +126,7 @@ Using environment variable we can pass parameters to modify the training of the 
 
 ```bash
 -e DATASET_SAMPLING_FRACTION=.1 #  sample the original dataset to allow for faster training. ]0,1]
--e TRAINING_TYPE=naive #   help the reader of the analysis to reproduce the different steps of the modelisation. [naive, ...]
+-e TRAINING_TYPE=naive #   help the reader of the analysis to reproduce the different steps of the modelisation. [naive, version_2, version_3]
 ```
 
 To have the most stable model please use DATASET_SAMPLING_FRACTION=1. It may take a few minutes on the first training but the preprocessed data is stored and allows for faster training when modifying TRAINING_TYPE.
