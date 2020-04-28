@@ -36,6 +36,8 @@ In the process of recruitment [Heetch](https://www.heetch.com/fr) asks applicant
 
 You'll only need to have [Docker](https://www.docker.com/) up and running. Everything will be executed within docker containers.
 
+The projet was tested on windows, linux and mac. Use the commands appropriate to your system
+
 ### Installation
 
 Clone the repo
