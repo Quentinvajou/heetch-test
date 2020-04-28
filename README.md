@@ -109,13 +109,13 @@ To train a model you can run this command :
 * on windows
 
 ```bash
-docker run -v %cd%:/heetch-test -e DATASET_SAMPLING_FRACTION=.1 --name heetch_ds_training --rm -ti heetch_ds python src/modeling/__main__.py
+docker run -v %cd%:/heetch-test -e DATASET_SAMPLING_FRACTION=.1 -e TRAINING_TYPE=naive --name heetch_ds_training --rm -ti heetch_ds python src/modeling/__main__.py
 ```
 
 * on linux and mac
 
 ```bash
-docker run -v $(pwd):/heetch-test -e DATASET_SAMPLING_FRACTION=.1 --name heetch_ds_training --rm -ti heetch_ds python src/modeling/__main__.py
+docker run -v $(pwd):/heetch-test -e DATASET_SAMPLING_FRACTION=.1 -e TRAINING_TYPE=naive --name heetch_ds_training --rm -ti heetch_ds python src/modeling/__main__.py
 ```
 
 Feature engineering was not optimised. It will take a few minutes to run the first time. A version of the dataset engineered is kept to allow for faster iteration on training and testing.
