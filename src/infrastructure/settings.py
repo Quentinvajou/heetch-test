@@ -2,9 +2,30 @@ import os, sys
 import logging
 import logmatic
 
-continuous = ['driver_client_distance', 'ride_distance', 'workshift_duration', 'workshift_rides_count',
-              'workshift_rides_duration']
+ENV = os.getenv('ENV', 'local')
+DATASET_SAMPLING_FRACTION = float(os.getenv('DATASET_SAMPLING_FRACTION', '.1'))
+TRAINING_TYPE = os.getenv('TRAINING_TYPE', 'naive')
+
+if TRAINING_TYPE == 'naive':
+    continuous = ['driver_client_distance', 'ride_distance', 'workshift_duration', 'workshift_rides_count',
+                  'workshift_rides_duration']
+elif TRAINING_TYPE == 'e':
+    continuous = ['driver_client_distance', 'ride_distance', 'workshift_duration', 'workshift_rides_count',
+                  'workshift_rides_max','workshift_mean_rides_duration', 'workshift_sum_rides_duration',
+                  'workshift_rides_ratio']
+else:
+    continuous = ['driver_client_distance', 'ride_distance', 'workshift_duration', 'workshift_prefered_duration',
+                  'workshift_rides_count', 'workshift_rides_prefered',
+                  'workshift_mean_rides_duration', 'workshift_sum_rides_duration',
+                  'ride_distance_cumul', 'ride_distance_prefered',
+                  'workshift_rides_ratio', 'workshift_duration_ratio', 'distance_ratio',
+                  'count_booking_requests_received']
+
 discrete = ['driver_accepted']
+
+columns_timestamp = ['workshift_duration', 'workshift_prefered_duration', 'workshift_mean_rides_duration',
+                     'workshift_sum_rides_duration']
+
 look_for_best_params = False
 
 default_parameters = {
@@ -38,7 +59,8 @@ dict_modeling_params = {
     'discrete': discrete,
     'default_parameters': default_parameters,
     'list_of_parameters': list_of_parameters,
-    'look_for_best_params': look_for_best_params
+    'look_for_best_params': look_for_best_params,
+    'columns_timestamp': columns_timestamp
 }
 
 def setup_logger_stdout(name, level=logging.INFO, additional_logger=[], removed_logger=[]):

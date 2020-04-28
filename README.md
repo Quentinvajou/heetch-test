@@ -60,14 +60,17 @@ docker build -f Dockerfiles/Dockerfile_setup -t heetch_setup .
 
 Then execute the container :
 
+* on windows
+
+```bash
+docker run -v ${pwd}:/heetch-test --name heetch_setup --rm -d heetch_setup
+```
+
+* on linux and mac
+
 ```bash
 docker run --user "$(id -u):$(id -g)" -v $(pwd):/heetch-test --name heetch_setup --rm -d heetch_setup
 ```
-
-In Linux use *$(pwd)* to get the path to the repo. Alternatively in :
-
-* Windows Command Line (cmd) use : *%cd%*
-* Windows PowerShell use : *${PWD}*
 
 
 
@@ -83,6 +86,14 @@ docker build -f Dockerfiles/Dockerfile_ds -t heetch_ds .
 
 Then execute the container to run the analysis tool :
 
+* on windows
+
+```bash
+docker run -v ${pwd}:/heetch-test -p 8501:8501 --name heetch_ds_analytics --rm -d heetch_ds streamlit run src/analytics/__main__.py
+```
+
+* on linux and mac
+
 ```bash
 docker run -v $(pwd):/heetch-test -p 8501:8501 --name heetch_ds_analytics --rm -d heetch_ds streamlit run src/analytics/__main__.py
 ```
@@ -95,13 +106,30 @@ You can now connect on http://localhost:8501/ to explore the datasets. **The ana
 
 To train a model you can run this command :
 
+* on windows
+
 ```bash
-docker run -v $(pwd):/heetch-test --name heetch_ds_training --rm -ti heetch_ds python src/modeling/__main__.py
+docker run -v ${pwd}:/heetch-test -e DATASET_SAMPLING_FRACTION=.1 --name heetch_ds_training --rm -ti heetch_ds python src/modeling/__main__.py
+```
+
+* on linux and mac
+
+```bash
+docker run -v $(pwd):/heetch-test -e DATASET_SAMPLING_FRACTION=.1 --name heetch_ds_training --rm -ti heetch_ds python src/modeling/__main__.py
 ```
 
 Feature engineering was not optimised. It will take a few minutes to run the first time. A version of the dataset engineered is kept to allow for faster iteration on training and testing.
 
+#### Environment variables
 
+Using environment variable we can pass parameters to modify the training of the model. 
+
+```bash
+-e DATASET_SAMPLING_FRACTION=.1 #  sample the original dataset to allow for faster training. ]0,1]
+-e TRAINING_TYPE=naive #   help the reader of the analysis to reproduce the different steps of the modelisation. [naive, ...]
+```
+
+To have the most stable model please use DATASET_SAMPLING_FRACTION=1. It may take a few minutes on the first training but the preprocessed data is stored and allows for faster training when modifying TRAINING_TYPE.
 
 ### Cleaning
 

@@ -5,7 +5,7 @@ import streamlit as st
 import seaborn as sns
 import matplotlib.pyplot as plt
 
-from src.infrastructure.settings import logger
+from src.infrastructure.settings import logger, continuous
 from src.modeling.preprocessing import Preprocessing
 
 
@@ -21,7 +21,7 @@ class EDA:
         all_files = []
         for path, subdirs, files in os.walk('data'):
             for name in files:
-                if not name.startswith('.'):
+                if name.endswith('.log') or name.endswith('.csv'):
                     all_files.append(os.path.join(path, name))
         return all_files
 
@@ -53,6 +53,10 @@ class EDA:
             self.explore_rr_dataset(df)
         elif dataset_name == 'drivers.log':
             self.explore_d_dataset(df)
+        elif dataset_name.split('.')[0] == 'preprocessed_dataset0':
+            self.explore_preprocessed_dataset(df)
+        elif dataset_name == 'metrics.csv':
+            self.explore_metrics(df)
         else:
             st.write("exploration not prepared for dataset : %s" % dataset_name)
             logger.info("exploration not prepared for dataset : %s" % dataset_name)
@@ -96,15 +100,53 @@ class EDA:
         #  - build histogram by city (origin, dest)
 
     def explore_d_dataset(self, df):
-        st.subheader('Distribution drivers states')
+        st.subheader('Distribution of drivers by hour')
         hist_values = np.histogram(df['logged_at'].dt.hour, bins=24, range=(0, 24))[0]
         st.bar_chart(hist_values)
 
+        st.subheader('Distribution drivers states')
         sns.catplot('new_state', kind='count', data=df)
         st.pyplot()
 
         # TODO:
         #  - graph timeline drivers (#rides, mean, var..)
+
+    def explore_preprocessed_dataset(self, df):
+        st.subheader('distribution of the target')
+        hist_values = np.histogram(df['driver_accepted'], bins=2)[0]
+        st.bar_chart(hist_values)
+
+        for option_col in continuous:
+            g = sns.FacetGrid(df, hue="driver_accepted", margin_titles=True)
+            g.fig.set_figwidth(10)
+            g = g.map(sns.distplot, option_col)
+            g.add_legend()
+            plt.show()
+            st.pyplot()
+
+        # for option_col in continuous:
+        #     sns.boxplot(df[option_col])
+        #     st.pyplot()
+
+        st.subheader('Distribution of bookingRequests by hour')
+        hist_values = np.histogram(pd.to_datetime(df['logged_at']).dt.hour, bins=24, range=(0, 24))[0]
+        st.bar_chart(hist_values)
+
+        st.write("There is  %s drivers id in this sample" % str(df['driver_id'].nunique()))
+        st.write("There is  %s bookingRequest id in this sample" % str(df['request_id'].nunique()))
+        st.write("There is  %s rideRequest id in this sample" % str(df['ride_id'].nunique()))
+
+    def explore_metrics(self, df):
+        available_models = df.loc[:, 'model']
+        option_model1 = st.selectbox('compare model : ', available_models)
+        option_model2 = st.selectbox('and model : ', available_models)
+
+        string_dict_f = df.loc[df['model'] == option_model1, 'features'].values[0]
+        dict_f = eval(string_dict_f)
+        string_dict_f2 = df.loc[df['model'] == option_model2, 'features'].values[0]
+        dict_f2 = eval(string_dict_f2)
+        df_print = pd.DataFrame([dict_f, dict_f2], index=[option_model1, option_model2]).T
+        st.table(df_print)
 
 
     def main(self):

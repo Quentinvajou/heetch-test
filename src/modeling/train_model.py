@@ -5,8 +5,10 @@ import pickle
 import pandas as pd
 from datetime import datetime
 from imblearn.over_sampling import RandomOverSampler
-
+from imblearn.under_sampling import RandomUnderSampler
 from sklearn.model_selection import GridSearchCV, train_test_split
+
+from src.infrastructure.settings import DATASET_SAMPLING_FRACTION
 
 
 class TrainModel:
@@ -18,14 +20,22 @@ class TrainModel:
         self.test_model = test_model
 
     def run_training(self):
-        df, is_preprocessed = self.preprocessing.load_and_merge_datasets()
+        df, is_preprocessed = self.preprocessing.load_and_merge_datasets(frac=DATASET_SAMPLING_FRACTION)
         if not is_preprocessed:
             df = self.preprocessing.prepare_dataset_for_training(df, save_processed_dataset=True)
-        df = self.preprocessing.filter_dataset_for_training(df)
-        train_x, test_x, train_y, test_y = train_test_split(df.iloc[:, :-1], df.iloc[:, -1], test_size=.3, random_state=42)
+        df = self.preprocessing.filter_dataset_for_training_column_wise(df)
 
-        oversample = RandomOverSampler(sampling_strategy='minority')
-        train_x, train_y = oversample.fit_resample(train_x, train_y)
+        train_x, test_x, train_y, test_y = train_test_split(df.iloc[:, :-1], df.iloc[:, -1],
+                                                            test_size=.3, random_state=42)
+
+        ''' This was tested to check if outliers removal would increase accuracy. it doesn't
+        train_cleaned = self.preprocessing.filter_dataset_for_training_row_wise(pd.concat([train_x, train_y], axis=1))
+        train_x = train_cleaned.iloc[:, :-1]
+        train_y = train_cleaned.iloc[:, -1]
+        '''
+        sampler = RandomOverSampler(sampling_strategy='minority')
+        # sampler = RandomUnderSampler(sampling_strategy='majority')
+        train_x, train_y = sampler.fit_resample(train_x, train_y)
 
         dtrain = xgb.DMatrix(train_x, label=train_y)
         dtest = xgb.DMatrix(test_x, label=test_y)
