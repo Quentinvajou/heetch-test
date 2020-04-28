@@ -26,7 +26,7 @@ Table of Contents
 
 ## Context
 
-In the process of recruitment [Heetch](https://www.heetch.com/fr) asks applicants to provide a solution for business case. This repo gives an approach to both data analysis and modelisation of a solution. You can follow the instructions of installation to run the solution. Analysis of the data can be found in the wiki.
+In the process of recruitment [Heetch](https://www.heetch.com/fr) asks applicants to provide a solution for a business case. This repo gives an approach to both data analysis and modelisation of a solution. You can follow the instructions of installation to run the solution. Analysis of the data can be found in the wiki.
 
 
 
