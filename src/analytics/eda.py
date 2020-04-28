@@ -5,7 +5,7 @@ import streamlit as st
 import seaborn as sns
 import matplotlib.pyplot as plt
 
-from src.infrastructure.settings import logger, continuous
+from src.infrastructure.settings import logger, dict_continuous
 from src.modeling.preprocessing import Preprocessing
 
 
@@ -39,6 +39,7 @@ class EDA:
 
     def main_data_explorer(self):
         st.title('Heetch ride booking Case')
+        st.subheader('1st Exploration')
         available_dataset = self.available_local_datasets()
         option_dataset = st.selectbox('dataset : ', available_dataset)
         df = self.load_data(option_dataset)
@@ -62,25 +63,28 @@ class EDA:
             logger.info("exploration not prepared for dataset : %s" % dataset_name)
 
     def explore_br_dataset(self, df):
-        st.subheader('Number of booking requests by hour')
+        st.subheader('2nd Exploration')
+
+        st.text('Number of booking requests by hour')
         hist_values = np.histogram(df['logged_at'].dt.hour, bins=24, range=(0, 24))[0]
         st.bar_chart(hist_values)
 
         hour_to_filter = st.slider('hour', 0, 23, 21)
-        st.subheader('Map of driver positions')
+        st.text('Map of driver positions')
         st.map(df.loc[df['logged_at'].dt.hour == hour_to_filter, ['driver_lon', 'driver_lat']]
                .rename(columns={'driver_lon': 'lon', 'driver_lat': 'lat'}))
         sns.jointplot('driver_lon', 'driver_lat', data=df.loc[df['logged_at'].dt.hour == hour_to_filter, ['driver_lat', 'driver_lon']],
                       kind="hex", color="#4CB391")
         st.pyplot()
 
-        st.subheader('distribution of the target')
+        st.text('distribution of the target')
         hist_values = np.histogram(df['driver_accepted'], bins=2)[0]
         st.bar_chart(hist_values)
 
 
     def explore_rr_dataset(self, df):
-        st.subheader('Number of requests by hour')
+        st.subheader('2nd Exploration')
+        st.text('Number of requests by hour')
         # TODO:
         #  - hist from 12 to 12
         hist_values = np.histogram(df['created_at'].dt.hour, bins=24, range=(0, 24))[0]
@@ -88,11 +92,11 @@ class EDA:
 
         hour_to_filter = st.slider('hour', 0, 23, 21)
 
-        st.subheader('Map of pickup points')
+        st.text('Map of pickup points')
         st.map(df.loc[df['created_at'].dt.hour == hour_to_filter, ['origin_lon', 'origin_lat']]
                .rename(columns={'origin_lat': 'lat', 'origin_lon': 'lon'}))
 
-        st.subheader('Map of drop off points')
+        st.text('Map of drop off points')
         st.map(df.loc[df['created_at'].dt.hour == hour_to_filter, ['destination_lon', 'destination_lat']]
                .rename(columns={'destination_lat': 'lat', 'destination_lon': 'lon'}))
         # TODO:
@@ -100,12 +104,14 @@ class EDA:
         #  - build histogram by city (origin, dest)
 
     def explore_d_dataset(self, df):
-        st.subheader('Distribution of drivers by hour')
+        st.subheader('2nd Exploration')
+        st.text('Distribution of drivers by hour')
         hist_values = np.histogram(df['logged_at'].dt.hour, bins=24, range=(0, 24))[0]
         st.bar_chart(hist_values)
 
-        st.subheader('Distribution drivers states')
-        sns.catplot('new_state', kind='count', data=df)
+        st.text('Distribution drivers states')
+        g = sns.catplot('new_state', kind='count', data=df)
+        g.fig.set_figwidth(10)
         st.pyplot()
 
         # TODO:
@@ -116,7 +122,10 @@ class EDA:
         hist_values = np.histogram(df['driver_accepted'], bins=2)[0]
         st.bar_chart(hist_values)
 
-        for option_col in continuous:
+        available_features = list(dict_continuous.keys())
+        option_features = st.selectbox('modeling version : ', available_features)
+
+        for option_col in dict_continuous[option_features]:
             g = sns.FacetGrid(df, hue="driver_accepted", margin_titles=True)
             g.fig.set_figwidth(10)
             g = g.map(sns.distplot, option_col)

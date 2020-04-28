@@ -63,7 +63,7 @@ Then execute the container :
 * on windows
 
 ```bash
-docker run -v ${pwd}:/heetch-test --name heetch_setup --rm -d heetch_setup
+docker run -v %cd%:/heetch-test --name heetch_setup --rm -d heetch_setup
 ```
 
 * on linux and mac
@@ -89,7 +89,7 @@ Then execute the container to run the analysis tool :
 * on windows
 
 ```bash
-docker run -v ${pwd}:/heetch-test -p 8501:8501 --name heetch_ds_analytics --rm -d heetch_ds streamlit run src/analytics/__main__.py
+docker run -v %cd%:/heetch-test -p 8501:8501 --name heetch_ds_analytics --rm -d heetch_ds streamlit run src/analytics/__main__.py
 ```
 
 * on linux and mac
@@ -109,7 +109,7 @@ To train a model you can run this command :
 * on windows
 
 ```bash
-docker run -v ${pwd}:/heetch-test -e DATASET_SAMPLING_FRACTION=.1 --name heetch_ds_training --rm -ti heetch_ds python src/modeling/__main__.py
+docker run -v %cd%:/heetch-test -e DATASET_SAMPLING_FRACTION=.1 --name heetch_ds_training --rm -ti heetch_ds python src/modeling/__main__.py
 ```
 
 * on linux and mac
