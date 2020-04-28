@@ -100,9 +100,9 @@ docker run -v %cd%:/heetch-test -p 8501:8501 --name heetch_ds_analytics --rm -d 
 docker run -v $(pwd):/heetch-test -p 8501:8501 --name heetch_ds_analytics --rm -d heetch_ds streamlit run src/analytics/__main__.py
 ```
 
-You can now connect on http://localhost:8501/ to explore the datasets. **The analysis content is available in the wiki**.
+You can now connect on [streamlit](http://localhost:8501/) to explore the datasets. **The analysis content is available in the wiki**.
 
-
+<img src="https://github.com/Quentinvajou/heetch-test/blob/master/img/streamlit_1.png" width="500">
 
 ### Run Training
 
