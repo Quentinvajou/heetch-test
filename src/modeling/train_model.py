@@ -8,7 +8,7 @@ from imblearn.over_sampling import RandomOverSampler
 from imblearn.under_sampling import RandomUnderSampler
 from sklearn.model_selection import GridSearchCV, train_test_split
 
-from src.infrastructure.settings import DATASET_SAMPLING_FRACTION
+from src.infrastructure.settings import DATASET_SAMPLING_FRACTION, TRAINING_TYPE
 
 
 class TrainModel:
@@ -99,7 +99,7 @@ class TrainModel:
 
         metrics['logloss'] = model.best_score
         metrics['features'] = dict_feature
-        metrics['model'] = 'model_' + str(version+1)
+        metrics['model'] = 'model_' + str(version+1) + '_' + TRAINING_TYPE
         metrics['timestamp'] = datetime.now()
         if os.path.isfile(metrics_file) and os.access(metrics_file, os.R_OK):
             df_metrics = pd.read_csv(metrics_file)

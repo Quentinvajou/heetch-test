@@ -133,10 +133,6 @@ class EDA:
             plt.show()
             st.pyplot()
 
-        # for option_col in continuous:
-        #     sns.boxplot(df[option_col])
-        #     st.pyplot()
-
         st.subheader('Distribution of bookingRequests by hour')
         hist_values = np.histogram(pd.to_datetime(df['logged_at']).dt.hour, bins=24, range=(0, 24))[0]
         st.bar_chart(hist_values)
