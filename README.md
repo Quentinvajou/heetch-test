@@ -138,6 +138,8 @@ To have the most stable model please use DATASET_SAMPLING_FRACTION=1. It may tak
 To get rid of the images just use :
 
 ```bash
+docker stop heetch_ds_analytics
+
 docker rmi -f heetch_setup heetch_ds
 ```
 
